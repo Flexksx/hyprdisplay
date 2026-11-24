@@ -1,0 +1,12 @@
+$schema: 'https://moonrepo.dev/schemas/v2/project.json'
+language: 'python'
+tags: ['python']
+layer: 'application'
+stack: 'backend'
+tasks:
+  start:
+    command: 'uv run hyprdisplay'
+    toolchains: 'system'
+    options:
+      cache: false
+      persistent: true

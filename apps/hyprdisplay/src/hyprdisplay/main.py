@@ -2,7 +2,7 @@ import argparse
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Manage Hyprland display profiles.")
+    parser = argparse.ArgumentParser(description="Manage Hyprland displays.")
     parser.parse_args()
 
 

@@ -16,17 +16,19 @@ fileGroups:
 
 tasks:
   install:
-    command: 'uv sync'
+    command: 'uv sync --all-packages'
     toolchains: 'system'
     inputs:
       - 'pyproject.toml'
-      - 'uv.lock'
+      - '/pyproject.toml'
+      - '/uv.lock'
+      - '/apps/*/pyproject.toml'
       - '.python-version'
-    outputs:
-      - '.venv'
+    options:
+      cache: false
 
   format:
-    script: 'uv run ruff check --fix-only . && uv run ruff format .'
+    script: 'uv run --all-packages ruff check --fix-only . && uv run --all-packages ruff format .'
     toolchains: 'system'
     deps:
       - 'install'
@@ -36,7 +38,7 @@ tasks:
       - '@files(configs)'
 
   lint:
-    script: 'uv run ruff check . && uv run ty check'
+    script: 'uv run --all-packages ruff check . && uv run --all-packages ty check'
     toolchains: 'system'
     deps:
       - 'install'
@@ -46,7 +48,7 @@ tasks:
       - '@files(configs)'
 
   test:
-    command: 'uv run pytest'
+    command: 'uv run --all-packages pytest'
     toolchains: 'system'
     deps:
       - 'install'
@@ -56,7 +58,7 @@ tasks:
       - '@files(configs)'
 
   build:
-    command: 'uv build'
+    command: 'uv build --out-dir dist'
     toolchains: 'system'
     deps:
       - 'install'

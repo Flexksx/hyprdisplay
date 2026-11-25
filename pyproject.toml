@@ -1,0 +1,6 @@
+[tool.uv.workspace]
+members = ["apps/hyprdisplay", "apps/hyprdisplay-daemon"]
+
+[tool.ty.environment]
+python = ".venv"
+root = ["apps/hyprdisplay/src", "apps/hyprdisplay-daemon/src"]

@@ -21,5 +21,8 @@ node_modules/
 .vscode/
 .idea/
 
+# Python workspace
+.venv/
+
 # Each app/lib should keep its own .gitignore for language-specific build output
 # (e.g. node_modules/, target/, out/, __pycache__/) — do not centralize those here.

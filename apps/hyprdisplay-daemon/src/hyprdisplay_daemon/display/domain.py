@@ -9,9 +9,10 @@ class DisplayIdentity:
     make: str
     model: str
     serial: str
+    connector: str = ""
 
     def __post_init__(self) -> None:
-        if not (self.make.strip() or self.model.strip() or self.serial.strip()):
+        if not any(value.strip() for value in (self.make, self.model, self.serial, self.connector)):
             raise ValueError("Display identity must not be empty")
 
 
@@ -55,6 +56,10 @@ class Rotation(IntEnum):
     CLOCKWISE_90 = 90
     CLOCKWISE_180 = 180
     CLOCKWISE_270 = 270
+    FLIPPED = 360
+    FLIPPED_CLOCKWISE_270 = 361
+    FLIPPED_CLOCKWISE_180 = 362
+    FLIPPED_CLOCKWISE_90 = 363
 
 
 @dataclass(frozen=True, slots=True)
@@ -72,6 +77,7 @@ class DisplaySettings:
     position: Position
     scale: DisplayScale
     rotation: Rotation
+
 
 @dataclass(frozen=True, slots=True)
 class Display:

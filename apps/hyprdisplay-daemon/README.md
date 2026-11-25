@@ -1,19 +1,15 @@
 # hyprdisplay-daemon
 
-The display module models displays and loads active Hyprland monitors:
+Run `just start hyprdisplay-daemon` in a Hyprland session. The daemon checks the
+active displays every second. It places a newly connected display to the right
+of the existing displays and restores the last saved settings when a known set
+of displays returns. Changes made in Hyprland are saved automatically.
 
-```python
-from hyprdisplay_daemon.display import get_displays
-from hyprdisplay_daemon.display.adapters import load_displays
-
-displays = get_displays(load_displays)
-```
-
-The adapter runs `hyprctl -j monitors`. It requires a running Hyprland session and
-rejects flipped transforms, which the display domain cannot represent. Command
-failures and invalid monitor data are raised to the caller.
-
-Import Linter checks the domain, application, and adapter boundaries as part of
-`just lint`. Run `just start daemon` inside a Hyprland session to listen for monitor
-connections and disconnections. For each connection, it logs the monitor's complete
-Hyprland JSON configuration. For each disconnection, it logs the monitor name. Stop it with Ctrl+C. The process exits if the event socket closes.
+A layout is identified by each display's connector, make, model and serial.
+By default, layouts are saved in `$XDG_STATE_HOME/hyprdisplay/layouts.json`, or
+`~/.local/state/hyprdisplay/layouts.json` when `XDG_STATE_HOME` is unset or empty.
+Set `HYPRDISPLAY_LAYOUTS_PATH` to use a different file. Set
+`HYPRDISPLAY_POLL_INTERVAL` to change the polling interval in seconds; it must
+be greater than zero.
+It restores resolution, refresh rate, position, scale and transform. The daemon
+requires `hyprctl` and a running Hyprland session.

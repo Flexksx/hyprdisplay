@@ -5,7 +5,7 @@ layer: 'application'
 stack: 'backend'
 tasks:
   start:
-    command: 'uv run hyprdisplay'
+    command: 'uv run --all-packages hyprdisplay'
     toolchains: 'system'
     options:
       cache: false

@@ -7,10 +7,10 @@ stack: 'backend'
 
 tasks:
   start:
-    command: 'uv run hyprdisplay-daemon'
+    command: 'uv run --all-packages hyprdisplay-daemon'
     toolchains: 'system'
     options:
       cache: false
       persistent: true
   lint:
-    script: 'uv run ruff check . && uv run ty check && uv run lint-imports'
+    script: 'uv run --all-packages ruff check . && uv run --all-packages ty check && uv run --all-packages lint-imports'

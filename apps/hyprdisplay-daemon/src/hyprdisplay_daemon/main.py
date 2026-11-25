@@ -1,66 +1,69 @@
 import json
 import logging
-import os
-import socket
-import subprocess
-from enum import StrEnum
+import time
+from functools import partial
 from pathlib import Path
 
-from pydantic import BaseModel, ConfigDict, TypeAdapter
+from pydantic import TypeAdapter
 
-SOCKET_PATH = (
-    Path(os.environ["XDG_RUNTIME_DIR"])
-    / "hypr"
-    / os.environ["HYPRLAND_INSTANCE_SIGNATURE"]
-    / ".socket2.sock"
+from hyprdisplay_daemon.display import apply_displays, get_displays
+from hyprdisplay_daemon.display.adapters import (
+    HyprlandMonitor,
+    apply_display,
+    display_from_monitor,
+    load_displays,
 )
+from hyprdisplay_daemon.layout import (
+    Layout,
+    LoadLayoutsPort,
+    SaveLayoutsPort,
+    save_layout,
+    select_layout,
+)
+from hyprdisplay_daemon.layout.adapters import read_layouts, save_layouts
+from hyprdisplay_daemon.settings import Settings
 
 
-logger = logging.getLogger(__name__)
+def migrate_layouts(path: Path) -> None:
+    if not path.exists():
+        return
+    data = path.read_bytes()
+    if not isinstance(json.loads(data), dict):
+        return
+    saved = TypeAdapter(dict[str, list[HyprlandMonitor]]).validate_json(data)
+    layouts = [Layout(tuple(display_from_monitor(monitor) for monitor in monitors))
+               for monitors in saved.values()]
+    save_layouts(path, {layout.identity: layout for layout in layouts})
 
 
-class MonitorEvent(StrEnum):
-    CONNECTED = "monitoradded"
-    DISCONNECTED = "monitorremoved"
+def update_layout(
+    previous: Layout | None, load_saved: LoadLayoutsPort, save_saved: SaveLayoutsPort
+) -> Layout:
+    current = Layout(tuple(get_displays(load_displays)))
+    if not current.displays or current == previous:
+        return current
+    if previous is None or current.identity != previous.identity:
+        target = select_layout(current, previous, load_saved)
+        if apply_displays(current.displays, target.displays, apply_display):
+            current = Layout(tuple(get_displays(load_displays)))
+    save_layout(current, load_saved, save_saved)
+    return current
 
 
-class HyprlandMonitor(BaseModel):
-    model_config = ConfigDict(strict=True, extra="allow")
-
-    name: str
-
-
-def report_monitor(monitor_name: str) -> None:
-    result = subprocess.run(
-        ["hyprctl", "-j", "monitors", "all"],
-        check=True,
-        capture_output=True,
-        text=True,
-    )
-    monitors = TypeAdapter(list[HyprlandMonitor]).validate_json(result.stdout)
-    monitor = next((item for item in monitors if item.name == monitor_name), None)
-    if monitor is None:
-        logger.warning("Monitor connected: %s; configuration unavailable", monitor_name)
-    else:
-        logger.info(
-            "Monitor connected: %s\n%s", monitor_name, json.dumps(monitor.model_dump(), indent=2)
-        )
+def run(settings: Settings) -> None:
+    path = settings.layouts_path
+    migrate_layouts(path)
+    load_saved = partial(read_layouts, path)
+    save_saved = partial(save_layouts, path)
+    previous = None
+    while True:
+        previous = update_layout(previous, load_saved, save_saved)
+        time.sleep(settings.poll_interval)
 
 
 def main() -> None:
     logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
-    with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as connection:
-        connection.connect(str(SOCKET_PATH))
-        for event in connection.makefile(encoding="utf-8"):
-            name, separator, monitor_name = event.rstrip("\n").partition(">>")
-            if not separator:
-                continue
-            match name:
-                case MonitorEvent.CONNECTED:
-                    report_monitor(monitor_name)
-                case MonitorEvent.DISCONNECTED:
-                    logger.info("Monitor disconnected: %s", monitor_name)
-    raise ConnectionError("Hyprland event socket closed")
+    run(Settings())
 
 
 if __name__ == "__main__":

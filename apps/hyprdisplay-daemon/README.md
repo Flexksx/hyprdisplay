@@ -1,6 +1,6 @@
 # hyprdisplay-daemon
 
-Run `just start hyprdisplay-daemon` in a Hyprland session. The daemon checks the
+Run `just start daemon` in a Hyprland session. The daemon checks the
 active displays every second. It places a newly connected display to the right
 of the existing displays and restores the last saved settings when a known set
 of displays returns. Changes made in Hyprland are saved automatically.

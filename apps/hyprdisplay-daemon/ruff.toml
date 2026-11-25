@@ -1,5 +1,5 @@
 line-length = 100
-src = ["src", "tests"]
+src = ["src"]
 
 [lint]
 select = [
@@ -28,9 +28,6 @@ select = [
 
 [lint.flake8-tidy-imports]
 ban-relative-imports = "all"
-
-[lint.per-file-ignores]
-"tests/**/*.py" = ["ARG"]
 
 [format]
 docstring-code-format = true

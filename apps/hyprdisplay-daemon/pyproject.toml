@@ -1,0 +1,48 @@
+[project]
+name = "hyprdisplay-daemon"
+version = "0.1.0"
+requires-python = ">=3.14"
+dependencies = ["pydantic>=2"]
+
+[project.scripts]
+hyprdisplay-daemon = "hyprdisplay_daemon.main:main"
+
+[dependency-groups]
+dev = ["import-linter>=2.17", "pytest>=9.1", "ruff>=0.16", "ty>=0.0.77"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/hyprdisplay_daemon"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.importlinter]
+root_package = "hyprdisplay_daemon"
+
+[[tool.importlinter.contracts]]
+name = "Each domain module has adapter, application, and domain layers"
+type = "layers"
+containers = ["hyprdisplay_daemon.display"]
+layers = ["adapters", "application", "domain"]
+exhaustive = true
+
+[[tool.importlinter.contracts]]
+name = "Domain layers do not import application or adapter layers"
+type = "forbidden"
+source_modules = ["hyprdisplay_daemon.*.domain"]
+forbidden_modules = ["hyprdisplay_daemon.*.application", "hyprdisplay_daemon.*.adapters"]
+
+[[tool.importlinter.contracts]]
+name = "Application layers do not import other application or adapter layers"
+type = "forbidden"
+source_modules = ["hyprdisplay_daemon.*.application"]
+forbidden_modules = ["hyprdisplay_daemon.*.application", "hyprdisplay_daemon.*.adapters"]
+
+[[tool.importlinter.contracts]]
+name = "Domain layers are independent"
+type = "independence"
+modules = ["hyprdisplay_daemon.*.domain"]

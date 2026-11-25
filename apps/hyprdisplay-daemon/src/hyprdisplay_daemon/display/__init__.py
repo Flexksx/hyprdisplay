@@ -1,4 +1,5 @@
-from display_domain.display.domain import (
+from hyprdisplay_daemon.display.application import LoadDisplaysPort, get_displays
+from hyprdisplay_daemon.display.domain import (
     Display,
     DisplayDimensionSize,
     DisplayIdentity,
@@ -17,7 +18,9 @@ __all__ = [
     "DisplayMode",
     "DisplayScale",
     "DisplaySettings",
+    "LoadDisplaysPort",
     "Position",
     "RefreshRate",
     "Rotation",
+    "get_displays",
 ]

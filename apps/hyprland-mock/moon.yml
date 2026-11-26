@@ -6,9 +6,6 @@ layer: 'application'
 stack: 'backend'
 
 tasks:
-  test:
-    deps:
-      - 'hyprdisplay-daemon:install'
   start:
     command: 'uv run hyprland-mock serve'
     toolchains: 'system'

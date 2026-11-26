@@ -3,6 +3,23 @@ $schema: 'https://moonrepo.dev/schemas/v2/project.json'
 layer: 'configuration'
 
 tasks:
+  test:
+    command: 'apps/hyprland-mock/.venv/bin/pytest tests'
+    toolchains: 'system'
+    deps:
+      - 'hyprdisplay-daemon:install'
+      - 'hyprland-mock:install'
+    inputs:
+      - 'tests/**/*'
+      - 'apps/hyprdisplay-daemon/src/**/*'
+      - 'apps/hyprland-mock/src/**/*'
+      - 'apps/hyprdisplay-daemon/pyproject.toml'
+      - 'apps/hyprland-mock/pyproject.toml'
+      - 'apps/hyprdisplay-daemon/uv.lock'
+      - 'apps/hyprland-mock/uv.lock'
+    options:
+      runFromWorkspaceRoot: true
+
   format:
     command: 'alejandra .'
     toolchains: 'system'
@@ -22,11 +39,16 @@ tasks:
       runFromWorkspaceRoot: true
 
   lint:
-    script: 'rumdl check . && alejandra --check .'
+    script: 'rumdl check . && alejandra --check . && apps/hyprland-mock/.venv/bin/ruff check --config apps/hyprland-mock/ruff.toml tests && apps/hyprland-mock/.venv/bin/ty check --python apps/hyprland-mock/.venv tests'
     toolchains: 'system'
+    deps:
+      - 'hyprland-mock:install'
     inputs:
       - '**/*.md'
       - '**/*.nix'
+      - 'tests/**/*.py'
+      - 'apps/hyprland-mock/src/**/*'
+      - 'apps/hyprland-mock/ruff.toml'
     options:
       runFromWorkspaceRoot: true
 

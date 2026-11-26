@@ -2,7 +2,10 @@
 name = "hyprdisplay-daemon"
 version = "0.1.0"
 requires-python = ">=3.14"
-dependencies = ["pydantic>=2"]
+dependencies = [
+    "pydantic>=2",
+    "pydantic-settings>=2.16.3",
+]
 
 [project.scripts]
 hyprdisplay-daemon = "hyprdisplay_daemon.main:main"

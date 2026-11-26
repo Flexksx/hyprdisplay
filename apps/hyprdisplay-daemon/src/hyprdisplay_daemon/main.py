@@ -1,13 +1,12 @@
 import argparse
 import logging
-import os
 import socket
-from pathlib import Path
 
 from hyprdisplay_daemon.display.adapters import apply_displays, load_displays
 from hyprdisplay_daemon.display.domain import Position
 from hyprdisplay_daemon.layout.adapters import load_layout, save_layout
 from hyprdisplay_daemon.layout.application import connected_layout, reposition_display
+from hyprdisplay_daemon.settings import Settings
 
 
 def main() -> None:
@@ -25,12 +24,7 @@ def main() -> None:
         apply_displays(layout.displays)
         return
     logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
-    socket_path = (
-        Path(os.environ["XDG_RUNTIME_DIR"])
-        / "hypr"
-        / os.environ["HYPRLAND_INSTANCE_SIGNATURE"]
-        / ".socket2.sock"
-    )
+    socket_path = Settings().event_socket_path()
     with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as connection:
         connection.connect(str(socket_path))
         for event in connection.makefile(encoding="utf-8"):

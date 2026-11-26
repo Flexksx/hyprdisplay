@@ -15,6 +15,7 @@ from hyprdisplay_daemon.display.domain import (
     RefreshRate,
     Rotation,
 )
+from hyprdisplay_daemon.settings import Settings
 
 
 class HyprlandMonitor(BaseModel):
@@ -39,7 +40,7 @@ ROTATIONS = (Rotation.NORMAL, Rotation.CLOCKWISE_270, Rotation.CLOCKWISE_180, Ro
 
 def load_displays() -> list[Display]:
     result = subprocess.run(
-        ["hyprctl", "-j", "monitors"], check=True, capture_output=True, text=True
+        [Settings().hyprctl, "-j", "monitors"], check=True, capture_output=True, text=True
     )
     monitors = TypeAdapter(list[HyprlandMonitor]).validate_json(result.stdout)
     return [
@@ -83,5 +84,8 @@ def apply_displays(displays: tuple[Display, ...]) -> None:
             f"transform,{ROTATIONS.index(settings.rotation)}"
         )
         subprocess.run(
-            ["hyprctl", "keyword", "monitor", value], check=True, capture_output=True, text=True
+            [Settings().hyprctl, "keyword", "monitor", value],
+            check=True,
+            capture_output=True,
+            text=True,
         )

@@ -8,6 +8,7 @@ from hyprdisplay_daemon.display.domain import (
     DisplaySettings,
     Position,
     RefreshRate,
+    Resolution,
     Rotation,
 )
 
@@ -21,6 +22,7 @@ __all__ = [
     "LoadDisplaysPort",
     "Position",
     "RefreshRate",
+    "Resolution",
     "Rotation",
     "get_displays",
 ]

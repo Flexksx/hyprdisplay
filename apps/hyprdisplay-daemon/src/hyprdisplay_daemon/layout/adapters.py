@@ -1,0 +1,30 @@
+import json
+
+from pydantic import TypeAdapter
+
+from hyprdisplay_daemon.display.domain import DisplayIdentity
+from hyprdisplay_daemon.layout.domain import Layout
+from hyprdisplay_daemon.settings import Settings
+
+LAYOUTS = TypeAdapter(list[Layout])
+
+
+def load_layouts() -> list[Layout]:
+    path = Settings().layout_path
+    if not path.exists():
+        return []
+    return LAYOUTS.validate_json(path.read_text())
+
+
+def load_layout(identity: frozenset[DisplayIdentity]) -> Layout | None:
+    return next((layout for layout in load_layouts() if layout.identity == identity), None)
+
+
+def save_layout(layout: Layout) -> None:
+    layouts = [item for item in load_layouts() if item.identity != layout.identity]
+    layouts.append(layout)
+    path = Settings().layout_path
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_suffix(".tmp")
+    temporary.write_text(json.dumps(LAYOUTS.dump_python(layouts, mode="json"), indent=2))
+    temporary.replace(path)

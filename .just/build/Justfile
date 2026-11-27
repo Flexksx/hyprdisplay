@@ -4,7 +4,8 @@ set working-directory := "../.."
 default:
     just --list --justfile {{source_file()}}
 
-all *FLAGS:
-    moon run :build {{FLAGS}}
+all:
+    @for project in apps/*; do uv build --project "$project" || exit; done
 
-import? 'units.just'
+unit NAME:
+    uv build --project apps/{{NAME}}

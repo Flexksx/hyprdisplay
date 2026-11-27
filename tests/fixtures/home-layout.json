@@ -1,0 +1,24 @@
+[
+  {
+    "displays": [
+      {
+        "identity": {"make": "Acme", "model": "Panel", "serial": "hdmi"},
+        "settings": {
+          "mode": {"width": {"value": 2560}, "height": {"value": 1440}, "refresh_rate": {"hertz": 143.97}},
+          "position": {"x": 0, "y": 0},
+          "scale": {"value": 1.0},
+          "rotation": 270
+        }
+      },
+      {
+        "identity": {"make": "Acme", "model": "Panel", "serial": "displayport"},
+        "settings": {
+          "mode": {"width": {"value": 2560}, "height": {"value": 1440}, "refresh_rate": {"hertz": 155.0}},
+          "position": {"x": 1440, "y": 0},
+          "scale": {"value": 1.0},
+          "rotation": 0
+        }
+      }
+    ]
+  }
+]

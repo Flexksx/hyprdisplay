@@ -24,7 +24,7 @@ class DisplayDimensionSize:
             raise ValueError("Display dimension must be non-negative")
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True, slots=True, order=True)
 class RefreshRate:
     hertz: float
 
@@ -38,10 +38,30 @@ class RefreshRate:
 
 
 @dataclass(frozen=True, slots=True)
+class Resolution:
+    width: DisplayDimensionSize
+    height: DisplayDimensionSize
+
+    def __lt__(self, other: Resolution) -> bool:
+        return (self.width.value * self.height.value, self.width.value, self.height.value) < (
+            other.width.value * other.height.value,
+            other.width.value,
+            other.height.value,
+        )
+
+    def __gt__(self, other: Resolution) -> bool:
+        return other < self
+
+
+@dataclass(frozen=True, slots=True)
 class DisplayMode:
     width: DisplayDimensionSize
     height: DisplayDimensionSize
     refresh_rate: RefreshRate
+
+    @property
+    def resolution(self) -> Resolution:
+        return Resolution(self.width, self.height)
 
 
 @dataclass(frozen=True, slots=True)
@@ -73,10 +93,13 @@ class DisplaySettings:
     scale: DisplayScale
     rotation: Rotation
 
+
 @dataclass(frozen=True, slots=True)
 class Display:
     identity: DisplayIdentity
     settings: DisplaySettings
+    available_modes: tuple[DisplayMode, ...] = ()
+    connector: str = ""
 
     def apply_settings(self, settings: DisplaySettings) -> Display:
         return replace(self, settings=settings)

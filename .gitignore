@@ -3,16 +3,10 @@
 result
 result-*
 
-# pnpm
-node_modules/
-
-# moon
+# Cached task files from older versions
 .moon/cache/
 .moon/docker/
-
-# just
-.just/*/units.just
-.just/*/units.just.staged
+.just/*/units.just*
 
 # OS cruft
 .DS_Store

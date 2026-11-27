@@ -5,7 +5,13 @@ Display management for Hyprland, starting with a CLI and a background daemon.
 The intended workflow is to configure each monitor once and restore its settings when it reconnects.
 Settings include resolution, refresh rate, position, scale, and rotation. A graphical interface can come later.
 
-The daemon app models display settings and can load connected Hyprland monitors. The CLI and daemon do not yet
-configure displays or save and restore settings.
+The daemon configures connected monitors and can save and restore layouts. The separate CLI does not yet
+communicate with the daemon.
 
 Enter the development shell with `nix develop`, then use `just` to list tasks.
+Use `just test unit mock-hyprland`, `just build unit mock-hyprland`, or
+`just start unit mock-hyprland` to work with one app.
+
+Run `just test repo` for the project-level
+tests. They start the daemon and mock in separate processes with isolated sockets and
+configuration. `just test all` includes these tests along with the app tests.

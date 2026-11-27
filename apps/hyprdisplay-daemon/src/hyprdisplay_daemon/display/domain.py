@@ -49,6 +49,9 @@ class Resolution:
             other.height.value,
         )
 
+    def __gt__(self, other: Resolution) -> bool:
+        return other < self
+
 
 @dataclass(frozen=True, slots=True)
 class DisplayMode:

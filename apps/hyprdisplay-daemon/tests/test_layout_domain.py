@@ -23,7 +23,7 @@ def test_connect_selects_highest_resolution_then_refresh_rate(
     )
     fastest = replace(high_resolution, refresh_rate=RefreshRate(144))
     modes = (fastest, display.settings.mode, high_resolution)
-    display = replace(display, modes=tuple(modes[index] for index in mode_order))
+    display = replace(display, available_modes=tuple(modes[index] for index in mode_order))
 
     layout = Layout(()).connect(display)
 
@@ -70,23 +70,29 @@ def test_connect_rejects_duplicate_identity_and_missing_modes(display: Display) 
     with pytest.raises(ValueError, match="already in the layout"):
         Layout((display,)).connect(display)
     with pytest.raises(ValueError, match="no available modes"):
-        Layout(()).connect(replace(display, modes=()))
+        Layout(()).connect(replace(display, available_modes=()))
 
 
 @pytest.mark.parametrize("position", [Position(-200, 300), Position(0, 0), Position(3000, -100)])
-def test_reposition_changes_only_selected_display(
+def test_update_changes_only_selected_display_settings(
     display: Display, other_display: Display, position: Position
 ) -> None:
     layout = Layout((display, other_display))
 
-    updated = layout.reposition(other_display.identity, position)
+    settings = replace(other_display.settings, position=position, rotation=Rotation.CLOCKWISE_90)
+    changed_display = replace(
+        other_display, settings=settings, connector="new-connector", available_modes=()
+    )
+    updated = layout.update(changed_display)
 
     assert updated.displays[0] == display
-    assert updated.displays[1].settings.position == position
+    assert updated.displays[1].settings == settings
     assert updated.displays[1].identity == other_display.identity
+    assert updated.displays[1].connector == other_display.connector
+    assert updated.displays[1].available_modes == other_display.available_modes
     assert layout.displays[1] == other_display
 
 
-def test_reposition_rejects_unknown_identity(display: Display, other_display: Display) -> None:
+def test_update_rejects_unknown_identity(display: Display, other_display: Display) -> None:
     with pytest.raises(ValueError, match="not in the layout"):
-        Layout((display,)).reposition(other_display.identity, Position(0, 0))
+        Layout((display,)).update(other_display)

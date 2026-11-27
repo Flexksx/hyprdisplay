@@ -1,3 +1,4 @@
+from dataclasses import replace
 from typing import Protocol
 
 from hyprdisplay_daemon.display.application import LoadDisplaysPort
@@ -55,6 +56,6 @@ def reposition_display(
     display = next((item for item in layout.displays if item.connector == connector), None)
     if display is None:
         raise ValueError(f"Unknown display: {connector}")
-    layout = layout.reposition(display.identity, position)
+    layout = layout.update(display.apply_settings(replace(display.settings, position=position)))
     save_layout(layout)
     return layout

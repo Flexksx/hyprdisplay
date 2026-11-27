@@ -22,7 +22,7 @@ def make_display() -> Callable[[str], Display]:
         return Display(
             identity=DisplayIdentity("Acme", "Panel", serial),
             settings=DisplaySettings(mode, Position(0, 0), DisplayScale(1), Rotation.NORMAL),
-            modes=(mode,),
+            available_modes=(mode,),
             connector=serial,
         )
 

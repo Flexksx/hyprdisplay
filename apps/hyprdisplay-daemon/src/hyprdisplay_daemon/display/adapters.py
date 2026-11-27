@@ -46,7 +46,7 @@ def load_displays() -> list[Display]:
     return [
         Display(
             connector=monitor.name,
-            modes=tuple(parse_mode(mode) for mode in monitor.available_modes),
+            available_modes=tuple(parse_mode(mode) for mode in monitor.available_modes),
             identity=DisplayIdentity(make=monitor.make, model=monitor.model, serial=monitor.serial),
             settings=DisplaySettings(
                 mode=DisplayMode(

@@ -53,7 +53,7 @@ def test_applying_settings_preserves_display_identity(display: Display) -> None:
     updated = display.apply_settings(settings)
     assert updated.settings == settings
     assert updated.identity == display.identity
-    assert updated.modes == display.modes
+    assert updated.available_modes == display.available_modes
     assert display.settings.position == Position(0, 0)
 
 

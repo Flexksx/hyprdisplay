@@ -54,6 +54,7 @@ def test_repositioned_layout_is_saved_and_restored_after_restart(
     display_system.reposition("DP-2", x, y)
     saved = json.loads(layout_path.read_text())
     assert not (display_system.config / "hyprdisplay/layouts.json").exists()
+    assert all(display["available_modes"] for display in saved[0]["displays"])
     assert saved[0]["displays"][1]["settings"]["position"] == {"x": x, "y": y}
     assert (display_system.monitors()[1].x, display_system.monitors()[1].y) == (x, y)
 

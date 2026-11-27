@@ -98,7 +98,7 @@ class DisplaySettings:
 class Display:
     identity: DisplayIdentity
     settings: DisplaySettings
-    modes: tuple[DisplayMode, ...] = ()
+    available_modes: tuple[DisplayMode, ...] = ()
     connector: str = ""
 
     def apply_settings(self, settings: DisplaySettings) -> Display:

@@ -1,4 +1,4 @@
-from dataclasses import dataclass, replace
+from dataclasses import dataclass
 from math import ceil
 
 from hyprdisplay_daemon.display.domain import (
@@ -22,9 +22,9 @@ class Layout:
     def connect(self, display: Display) -> Layout:
         if display.identity in self.identity:
             raise ValueError("Display is already in the layout")
-        if not display.modes:
+        if not display.available_modes:
             raise ValueError("Display has no available modes")
-        mode = max(display.modes, key=lambda item: (item.resolution, item.refresh_rate))
+        mode = max(display.available_modes, key=lambda item: (item.resolution, item.refresh_rate))
         x = max(
             (
                 item.settings.position.x
@@ -41,14 +41,12 @@ class Layout:
         settings = DisplaySettings(mode, Position(ceil(x), 0), DisplayScale(1), Rotation.NORMAL)
         return Layout((*self.displays, display.apply_settings(settings)))
 
-    def reposition(self, identity: DisplayIdentity, position: Position) -> Layout:
-        if identity not in self.identity:
+    def update(self, display: Display) -> Layout:
+        if display.identity not in self.identity:
             raise ValueError("Display is not in the layout")
         return Layout(
             tuple(
-                replace(display, settings=replace(display.settings, position=position))
-                if display.identity == identity
-                else display
-                for display in self.displays
+                item.apply_settings(display.settings) if item.identity == display.identity else item
+                for item in self.displays
             )
         )

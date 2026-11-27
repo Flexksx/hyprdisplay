@@ -48,6 +48,10 @@ def test_connect_positions_monitors_and_disconnect_emits_event(
 def test_repositioned_layout_is_saved_and_restored_after_restart(
     display_system: DisplaySystem,
 ) -> None:
+    layout_path = display_system.config / "custom" / "layouts.json"
+    display_system.stop_daemon()
+    display_system.environment["HYPRDISPLAY_LAYOUT_PATH"] = str(layout_path)
+    display_system.start_daemon()
     display_system.connect(monitor("DP-1", "1"))
     display_system.wait_for(
         lambda: display_system.monitors()[0].width == 2560, "first monitor layout"
@@ -55,7 +59,8 @@ def test_repositioned_layout_is_saved_and_restored_after_restart(
     display_system.connect(monitor("DP-2", "2"))
     display_system.wait_for(lambda: display_system.monitors()[1].x == 2560, "second monitor layout")
     display_system.reposition("DP-2", 3000, 120)
-    saved = json.loads((display_system.config / "hyprdisplay/layouts.json").read_text())
+    saved = json.loads(layout_path.read_text())
+    assert not (display_system.config / "hyprdisplay/layouts.json").exists()
     assert saved[0]["displays"][1]["settings"]["position"] == {"x": 3000, "y": 120}
     assert (display_system.monitors()[1].x, display_system.monitors()[1].y) == (3000, 120)
 
@@ -67,3 +72,23 @@ def test_repositioned_layout_is_saved_and_restored_after_restart(
         lambda: (display_system.monitors()[1].x, display_system.monitors()[1].y) == (3000, 120),
         "saved layout to be restored",
     )
+
+
+def test_disconnect_restores_layout_for_remaining_monitors(display_system: DisplaySystem) -> None:
+    display_system.connect(monitor("DP-1", "1"))
+    display_system.wait_for(lambda: display_system.monitors()[0].width == 2560, "first layout")
+    display_system.reposition("DP-1", 300, 120)
+    display_system.connect(monitor("DP-2", "2"))
+    display_system.wait_for(
+        lambda: len(display_system.monitors()) == 2 and display_system.monitors()[1].x == 2860,
+        "second layout",
+    )
+    display_system.reposition("DP-1", 600, 0)
+    display_system.disconnect("DP-2")
+    display_system.wait_for(
+        lambda: (display_system.monitors()[0].x, display_system.monitors()[0].y) == (300, 120),
+        "remaining monitor layout to be restored",
+    )
+    display_system.disconnect("DP-1")
+    display_system.connect(monitor("DP-3", "3"))
+    display_system.wait_for(lambda: display_system.monitors()[0].width == 2560, "reconnected layout")

@@ -111,6 +111,7 @@ def display_system(tmp_path: Path) -> Iterator[DisplaySystem]:
             "HYPRDISPLAY_HYPRCTL": str(MOCK_HYPRCTL),
             "XDG_CONFIG_HOME": str(config),
         }
+        environment.pop("HYPRDISPLAY_LAYOUT_PATH", None)
         mock_log = stack.enter_context((tmp_path / "mock.log").open("w+b"))
         daemon_log = stack.enter_context((tmp_path / "daemon.log").open("w+b"))
         mock = subprocess.Popen(

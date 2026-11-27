@@ -32,6 +32,9 @@ def main() -> None:
             if separator and name == "monitoradded":
                 layout = connected_layout(load_displays, load_layout, connector)
                 apply_displays(layout.displays)
+            elif separator and name == "monitorremoved":
+                layout = connected_layout(load_displays, load_layout)
+                apply_displays(layout.displays)
     raise ConnectionError("Hyprland event socket closed")
 
 

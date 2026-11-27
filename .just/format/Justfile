@@ -3,3 +3,5 @@ format:
     rumdl check --fix .
     alejandra .
     @for project in apps/*; do (cd "$project" && uv run ruff check --fix-only . && uv run ruff format .) || exit; done
+    uv run --project apps/mock-hyprland ruff check --fix-only --config apps/mock-hyprland/ruff.toml tests
+    uv run --project apps/mock-hyprland ruff format --config apps/mock-hyprland/ruff.toml tests

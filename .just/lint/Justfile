@@ -2,7 +2,8 @@
 lint:
     rumdl check .
     alejandra --check .
-    @for project in apps/*; do (cd "$project" && uv run ruff check . && uv run ty check) || exit; done
+    @for project in apps/*; do (cd "$project" && uv run ruff check . && uv run ruff format --check . && uv run ty check) || exit; done
     cd apps/hyprdisplay-daemon && uv run lint-imports
     uv run --project apps/mock-hyprland ruff check --config apps/mock-hyprland/ruff.toml tests
+    uv run --project apps/mock-hyprland ruff format --check --config apps/mock-hyprland/ruff.toml tests
     uv run --project apps/mock-hyprland ty check --python apps/mock-hyprland/.venv tests

@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from hyprland_mock.protocol import COMMAND
+from mock_hyprland.protocol import COMMAND
 
 
 def test_connect_rejects_incomplete_monitor() -> None:

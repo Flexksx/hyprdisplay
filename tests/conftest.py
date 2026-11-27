@@ -9,12 +9,12 @@ from pathlib import Path
 from typing import IO
 
 import pytest
-from hyprland_mock.protocol import ListenerCount, Monitor
+from mock_hyprland.protocol import ListenerCount, Monitor
 from pydantic import TypeAdapter
 
 ROOT = Path(__file__).resolve().parents[1]
-MOCK = ROOT / "apps/hyprland-mock/.venv/bin/hyprland-mock"
-MOCK_HYPRCTL = ROOT / "apps/hyprland-mock/.venv/bin/hyprland-mock-hyprctl"
+MOCK = ROOT / "apps/mock-hyprland/.venv/bin/mock-hyprland"
+MOCK_HYPRCTL = ROOT / "apps/mock-hyprland/.venv/bin/mock-hyprland-hyprctl"
 DAEMON = ROOT / "apps/hyprdisplay-daemon/.venv/bin/hyprdisplay-daemon"
 MONITORS = TypeAdapter(list[Monitor])
 
@@ -106,7 +106,7 @@ def display_system(tmp_path: Path) -> Iterator[DisplaySystem]:
         sockets = Path(socket_dir)
         config = tmp_path / "config"
         environment = os.environ | {
-            "HYPRLAND_MOCK_DIR": str(sockets),
+            "MOCK_HYPRLAND_DIR": str(sockets),
             "HYPRDISPLAY_EVENT_SOCKET": str(sockets / "events.sock"),
             "HYPRDISPLAY_HYPRCTL": str(MOCK_HYPRCTL),
             "XDG_CONFIG_HOME": str(config),

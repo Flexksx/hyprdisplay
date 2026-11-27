@@ -7,7 +7,7 @@ from pathlib import Path
 import click
 from pydantic import TypeAdapter, ValidationError
 
-from hyprland_mock.protocol import (
+from mock_hyprland.protocol import (
     RESPONSE,
     Connect,
     Disconnect,
@@ -18,7 +18,7 @@ from hyprland_mock.protocol import (
     Monitors,
     Status,
 )
-from hyprland_mock.server import serve
+from mock_hyprland.server import serve
 
 MONITORS = TypeAdapter(list[Monitor])
 
@@ -29,7 +29,7 @@ class HyprctlOptions:
 
 
 def socket_directory() -> Path:
-    return Path(os.environ.get("HYPRLAND_MOCK_DIR", "/tmp/hyprland-mock"))
+    return Path(os.environ.get("MOCK_HYPRLAND_DIR", "/tmp/mock-hyprland"))
 
 
 def request(

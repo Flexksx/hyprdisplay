@@ -4,7 +4,7 @@ from pathlib import Path
 
 from pydantic import ValidationError
 
-from hyprland_mock.protocol import (
+from mock_hyprland.protocol import (
     COMMAND,
     Command,
     Connect,

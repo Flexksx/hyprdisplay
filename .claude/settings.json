@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "moon run :format --affected && moon run :lint --affected",
+            "command": "just format && just lint",
             "timeout": 120,
             "statusMessage": "Checking format and lint..."
           }

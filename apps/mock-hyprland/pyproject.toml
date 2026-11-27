@@ -1,5 +1,5 @@
 [project]
-name = "hyprland-mock"
+name = "mock-hyprland"
 version = "0.1.0"
 requires-python = ">=3.14"
 dependencies = [
@@ -8,8 +8,8 @@ dependencies = [
 ]
 
 [project.scripts]
-hyprland-mock = "hyprland_mock.main:main"
-hyprland-mock-hyprctl = "hyprland_mock.main:hyprctl"
+mock-hyprland = "mock_hyprland.main:main"
+mock-hyprland-hyprctl = "mock_hyprland.main:hyprctl"
 
 [dependency-groups]
 dev = ["pytest>=9.1", "ruff>=0.16", "ty>=0.0.77"]
@@ -19,7 +19,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/hyprland_mock"]
+packages = ["src/mock_hyprland"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -4,10 +4,5 @@ set working-directory := "../.."
 default:
     just --list --justfile {{source_file()}}
 
-all *FLAGS:
-    moon run :start {{FLAGS}}
-
-daemon *FLAGS:
-    moon run hyprdisplay-daemon:start {{FLAGS}}
-
-import? 'units.just'
+unit NAME *FLAGS:
+    @if [ '{{NAME}}' = 'mock-hyprland' ]; then uv run --project apps/{{NAME}} mock-hyprland serve {{FLAGS}}; else uv run --project apps/{{NAME}} {{NAME}} {{FLAGS}}; fi

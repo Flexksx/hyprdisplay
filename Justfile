@@ -4,12 +4,11 @@ import '.just/lint/Justfile'
 mod build '.just/build'
 mod test '.just/test'
 mod start '.just/start'
-mod new '.just/new'
 
 [private]
 default:
     just --list --list-submodules
 
-# Rebuild the unit indexes
+# Install Python dependencies
 sync:
-    ./.just/units.sh
+    @for project in apps/*; do uv sync --project "$project" || exit; done

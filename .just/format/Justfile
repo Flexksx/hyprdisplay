@@ -1,3 +1,5 @@
 # Format and apply safe fixes
-format *FLAGS:
-    moon run :format {{FLAGS}}
+format:
+    rumdl check --fix .
+    alejandra .
+    @for project in apps/*; do (cd "$project" && uv run ruff check --fix-only . && uv run ruff format .) || exit; done

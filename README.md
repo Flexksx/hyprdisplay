@@ -9,7 +9,9 @@ The daemon configures connected monitors and can save and restore layouts. The s
 communicate with the daemon.
 
 Enter the development shell with `nix develop`, then use `just` to list tasks.
+Use `just test unit mock-hyprland`, `just build unit mock-hyprland`, or
+`just start unit mock-hyprland` to work with one app.
 
-Run `just sync` to create the task indexes, then `just test repo` for the project-level
+Run `just test repo` for the project-level
 tests. They start the daemon and mock in separate processes with isolated sockets and
 configuration. `just test all` includes these tests along with the app tests.

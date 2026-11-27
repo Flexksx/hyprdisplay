@@ -4,7 +4,13 @@ set working-directory := "../.."
 default:
     just --list --justfile {{source_file()}}
 
-all *FLAGS:
-    moon run :test {{FLAGS}}
+all:
+    @for project in apps/*; do if test -d "$project/tests" && find "$project/tests" -name 'test_*.py' -print -quit | grep -q .; then (cd "$project" && uv run pytest) || exit; fi; done
+    just test repo
 
-import? 'units.just'
+unit NAME *FLAGS:
+    uv run --directory apps/{{NAME}} --with pytest pytest {{FLAGS}}
+
+repo *FLAGS:
+    uv sync --project apps/hyprdisplay-daemon
+    uv run --project apps/mock-hyprland pytest tests {{FLAGS}}

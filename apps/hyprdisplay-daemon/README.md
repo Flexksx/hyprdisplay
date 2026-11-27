@@ -9,6 +9,6 @@ The daemon currently ignores disconnect events and exits if the event socket clo
 
 Set `HYPRDISPLAY_EVENT_SOCKET` to override the Hyprland event socket and
 `HYPRDISPLAY_HYPRCTL` to override the `hyprctl` executable. See
-[hyprland-mock](../hyprland-mock/README.md) to run the daemon without Hyprland.
+[mock-hyprland](../mock-hyprland/README.md) to run the daemon without Hyprland.
 
 Import Linter checks the domain, application, and adapter boundaries as part of `just lint`.

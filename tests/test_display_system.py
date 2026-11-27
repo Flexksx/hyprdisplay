@@ -4,7 +4,7 @@ import subprocess
 
 import pytest
 from conftest import DisplaySystem
-from hyprland_mock.protocol import Monitor
+from mock_hyprland.protocol import Monitor
 
 
 def monitor(name: str, serial: str) -> Monitor:

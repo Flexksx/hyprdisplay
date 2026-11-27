@@ -19,6 +19,33 @@ DAEMON = ROOT / "apps/hyprdisplay-daemon/.venv/bin/hyprdisplay-daemon"
 MONITORS = TypeAdapter(list[Monitor])
 
 
+INITIAL_WIDTH = 1920
+INITIAL_HEIGHT = 1080
+PREFERRED_WIDTH = 2560
+PREFERRED_HEIGHT = 1440
+REFRESH_RATE = 60.0
+
+
+def monitor(name: str, serial: str) -> Monitor:
+    return Monitor(
+        name=name,
+        available_modes=[
+            f"{INITIAL_WIDTH}x{INITIAL_HEIGHT}@{REFRESH_RATE:.2f}Hz",
+            f"{PREFERRED_WIDTH}x{PREFERRED_HEIGHT}@{REFRESH_RATE:.2f}Hz",
+        ],
+        make="Acme",
+        model="Panel",
+        serial=serial,
+        width=INITIAL_WIDTH,
+        height=INITIAL_HEIGHT,
+        refresh_rate=REFRESH_RATE,
+        x=0,
+        y=0,
+        scale=1.0,
+        transform=0,
+    )
+
+
 def stop_process(process: subprocess.Popen[bytes]) -> None:
     if process.poll() is None:
         process.terminate()
@@ -98,7 +125,7 @@ class DisplaySystem:
 
 
 @pytest.fixture
-def display_system(tmp_path: Path) -> Iterator[DisplaySystem]:
+def mock_system(tmp_path: Path) -> Iterator[DisplaySystem]:
     with (
         tempfile.TemporaryDirectory(prefix="hyprdisplay-test-") as socket_dir,
         ExitStack() as stack,
@@ -120,10 +147,15 @@ def display_system(tmp_path: Path) -> Iterator[DisplaySystem]:
         system = DisplaySystem(environment, sockets, config, mock, mock_log, daemon_log)
         try:
             system.wait_for((sockets / "events.sock").exists, "mock to start")
-            system.start_daemon()
             yield system
         finally:
-            try:
-                system.stop_daemon()
-            finally:
-                stop_process(mock)
+            stop_process(mock)
+
+
+@pytest.fixture
+def display_system(mock_system: DisplaySystem) -> Iterator[DisplaySystem]:
+    try:
+        mock_system.start_daemon()
+        yield mock_system
+    finally:
+        mock_system.stop_daemon()

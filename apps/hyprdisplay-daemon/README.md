@@ -15,3 +15,9 @@ or `~/.config/hyprdisplay/layouts.json` when `XDG_CONFIG_HOME` is unset. See
 [mock-hyprland](../mock-hyprland/README.md) to run the daemon without Hyprland.
 
 Import Linter checks the domain, application, and adapter boundaries as part of `just lint`.
+
+Run the domain unit tests and show coverage with:
+
+```sh
+just test unit hyprdisplay-daemon --cov=hyprdisplay_daemon.display.domain --cov=hyprdisplay_daemon.layout.domain --cov-report=term-missing
+```

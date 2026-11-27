@@ -3,25 +3,13 @@ import socket
 import subprocess
 
 import pytest
-from conftest import DisplaySystem
-from mock_hyprland.protocol import Monitor
+from conftest import PREFERRED_WIDTH, DisplaySystem, monitor
 
 
-def monitor(name: str, serial: str) -> Monitor:
-    return Monitor(
-        name=name,
-        available_modes=["1920x1080@60.00Hz", "2560x1440@60.00Hz"],
-        make="Acme",
-        model="Panel",
-        serial=serial,
-        width=1920,
-        height=1080,
-        refresh_rate=60.0,
-        x=0,
-        y=0,
-        scale=1.0,
-        transform=0,
-    )
+def test_mock_system_runs_without_daemon(mock_system: DisplaySystem) -> None:
+    mock_system.connect(monitor("DP-1", "1"))
+    assert mock_system.listeners() == 0
+    assert [item.name for item in mock_system.monitors()] == ["DP-1"]
 
 
 def test_connect_positions_monitors_and_disconnect_emits_event(
@@ -29,13 +17,15 @@ def test_connect_positions_monitors_and_disconnect_emits_event(
 ) -> None:
     display_system.connect(monitor("DP-1", "1"))
     display_system.wait_for(
-        lambda: display_system.monitors()[0].width == 2560, "first monitor layout"
+        lambda: display_system.monitors()[0].width == PREFERRED_WIDTH, "first monitor layout"
     )
     with pytest.raises(subprocess.CalledProcessError, match="monitor-connect") as error:
         display_system.connect(monitor("DP-1", "1"))
     assert "already connected" in error.value.stderr
     display_system.connect(monitor("DP-2", "2"))
-    display_system.wait_for(lambda: display_system.monitors()[1].x == 2560, "second monitor layout")
+    display_system.wait_for(
+        lambda: display_system.monitors()[1].x == PREFERRED_WIDTH, "second monitor layout"
+    )
     with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as listener:
         listener.settimeout(5)
         listener.connect(str(display_system.sockets / "events.sock"))
@@ -45,8 +35,9 @@ def test_connect_positions_monitors_and_disconnect_emits_event(
     assert [item.name for item in display_system.monitors()] == ["DP-1"]
 
 
+@pytest.mark.parametrize("x, y", [(3000, 120), (-1920, 0)], ids=["right", "left"])
 def test_repositioned_layout_is_saved_and_restored_after_restart(
-    display_system: DisplaySystem,
+    display_system: DisplaySystem, x: int, y: int
 ) -> None:
     layout_path = display_system.config / "custom" / "layouts.json"
     display_system.stop_daemon()
@@ -54,33 +45,40 @@ def test_repositioned_layout_is_saved_and_restored_after_restart(
     display_system.start_daemon()
     display_system.connect(monitor("DP-1", "1"))
     display_system.wait_for(
-        lambda: display_system.monitors()[0].width == 2560, "first monitor layout"
+        lambda: display_system.monitors()[0].width == PREFERRED_WIDTH, "first monitor layout"
     )
     display_system.connect(monitor("DP-2", "2"))
-    display_system.wait_for(lambda: display_system.monitors()[1].x == 2560, "second monitor layout")
-    display_system.reposition("DP-2", 3000, 120)
+    display_system.wait_for(
+        lambda: display_system.monitors()[1].x == PREFERRED_WIDTH, "second monitor layout"
+    )
+    display_system.reposition("DP-2", x, y)
     saved = json.loads(layout_path.read_text())
     assert not (display_system.config / "hyprdisplay/layouts.json").exists()
-    assert saved[0]["displays"][1]["settings"]["position"] == {"x": 3000, "y": 120}
-    assert (display_system.monitors()[1].x, display_system.monitors()[1].y) == (3000, 120)
+    assert saved[0]["displays"][1]["settings"]["position"] == {"x": x, "y": y}
+    assert (display_system.monitors()[1].x, display_system.monitors()[1].y) == (x, y)
 
     display_system.stop_daemon()
     display_system.disconnect("DP-2")
     display_system.start_daemon()
     display_system.connect(monitor("DP-3", "2"))
     display_system.wait_for(
-        lambda: (display_system.monitors()[1].x, display_system.monitors()[1].y) == (3000, 120),
+        lambda: (display_system.monitors()[1].x, display_system.monitors()[1].y) == (x, y),
         "saved layout to be restored",
     )
 
 
 def test_disconnect_restores_layout_for_remaining_monitors(display_system: DisplaySystem) -> None:
     display_system.connect(monitor("DP-1", "1"))
-    display_system.wait_for(lambda: display_system.monitors()[0].width == 2560, "first layout")
+    display_system.wait_for(
+        lambda: display_system.monitors()[0].width == PREFERRED_WIDTH, "first layout"
+    )
     display_system.reposition("DP-1", 300, 120)
     display_system.connect(monitor("DP-2", "2"))
     display_system.wait_for(
-        lambda: len(display_system.monitors()) == 2 and display_system.monitors()[1].x == 2860,
+        lambda: (
+            len(display_system.monitors()) == 2
+            and display_system.monitors()[1].x == 300 + PREFERRED_WIDTH
+        ),
         "second layout",
     )
     display_system.reposition("DP-1", 600, 0)
@@ -91,4 +89,6 @@ def test_disconnect_restores_layout_for_remaining_monitors(display_system: Displ
     )
     display_system.disconnect("DP-1")
     display_system.connect(monitor("DP-3", "3"))
-    display_system.wait_for(lambda: display_system.monitors()[0].width == 2560, "reconnected layout")
+    display_system.wait_for(
+        lambda: display_system.monitors()[0].width == PREFERRED_WIDTH, "reconnected layout"
+    )
